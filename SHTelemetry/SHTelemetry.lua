@@ -88,8 +88,6 @@ function SHTelemetry:buildTelemetry()
             -- Fill types
 
             -- Implements
-            
-
 
         end
         self:addNumberToTelemetry("vehiclePrice", vehicle:getPrice())
