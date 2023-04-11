@@ -22,8 +22,8 @@ function SHTelemetry:buildTelemetry()
     local mission = g_currentMission
 
     -- Mission / Environment
-    self:addNumberToTelemetry("money", mission.missionInfo.money)
-    self:addNumberToTelemetry("dayTime", mission.environment.currentHour * 3600 + mission.environment.currentMinute * 60)
+    self:addNumberToTelemetry("money", mission.missionInfo.money)  --Only updates on game restart??
+    self:addNumberToTelemetry("dayTime", mission.environment.currentHour * 60 + mission.environment.currentMinute ) --Changed to output in minutes instead of seconds
     self:addNumberToTelemetry("day", mission.environment.currentDay)
     self:addNumberToTelemetry("timeScale", mission.missionInfo.timeScale)
     self:addNumberToTelemetry("playTime", mission.missionInfo.playTime)
@@ -33,6 +33,7 @@ function SHTelemetry:buildTelemetry()
         local vehicle = g_currentMission.controlledVehicle
         local engine = vehicle:getMotor()
         local level, capacity = self:getVehicleFuelLevelAndCapacity(vehicle)
+        
 
         -- Content
         tabLength = self:addBoolToTelemetry("isInVehicle", true)
@@ -46,13 +47,19 @@ function SHTelemetry:buildTelemetry()
             local cruiseControlSpeed = cruiseControl.speed
             local reverserDirection = vehicle.getReverserDirection == nil and 1 or vehicle:getReverserDirection()
             local isReverseDriving = vehicle:getLastSpeed() > spec_motorized.reverseDriveThreshold and vehicle.movingDirection ~= reverserDirection
+            
 
-            -- Moves and basic engine
+            -- Moves and basic engine                                                       
             self:addBoolToTelemetry("isMotorStarted", spec_motorized.isMotorStarted)
             self:addBoolToTelemetry("isReverseDriving", isReverseDriving)
             self:addBoolToTelemetry("isReverseDirection", vehicle.movingDirection == reverserDirection)
             self:addNumberToTelemetry("maxRpm", engine:getMaxRpm())
-            self:addNumberToTelemetry("minRpm", engine:getMinRpm())
+            self:addNumberToTelemetry("minRpm", engine:getMinRpm()) 
+
+            self.addNumberToTelemetry("runtime", vehicle.operatingTime)
+
+            
+
             self:addNumberToTelemetry("Rpm", engine.lastRealMotorRpm)
             self:addNumberToTelemetry("speed", vehicle:getLastSpeed())
             self:addNumberToTelemetry("fuelLevel", level)
@@ -73,6 +80,17 @@ function SHTelemetry:buildTelemetry()
             self:addBoolToTelemetry("leftTurnIndicator", leftIndicator)
             self:addBoolToTelemetry("rightTurnIndicator", rightIndicator)
             self:addBoolToTelemetry("beaconLightsActive", spec_lights.beaconLightsActive)
+            self:addNumberToTelemetry("lightType", spec_lights.lightsTypesMask)  --lots of numbers here will work out after.
+
+
+            -- Adding new stuff here
+            -- Engine related
+            -- Fill types
+
+            -- Implements
+            
+
+
         end
         self:addNumberToTelemetry("vehiclePrice", vehicle:getPrice())
         self:addNumberToTelemetry("vehicleSellPrice", vehicle:getSellPrice())
@@ -96,6 +114,7 @@ function SHTelemetry:getVehicleFuelLevelAndCapacity(vehicle)
 
     return level, capacity
 end
+
 
 function SHTelemetry:initPipe(dt)
     -- Re/Init file
